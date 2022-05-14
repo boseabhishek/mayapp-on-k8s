@@ -74,6 +74,10 @@ docker image tag cats-on-docker boseabhishek/cats-api
 docker push boseabhishek/cats-api
 ```
 
+Now, before we jump into deploying the api and db on k8s on `docker-desktop` now, please see [this](https://gist.github.com/boseabhishek/e509ee06b8f92f529be8524e078e33d0) for a k8s refresher.
+
+Then, follow the steps and explanantion inside [kubernetes](kubernetes/README.md) directory.
+
 ---
 
 ## ✅ access app:
