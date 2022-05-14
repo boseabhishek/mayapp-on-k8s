@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+        REDIS_PASSWORD: password123
+    volumes:
+    - "$PWD/config.json:/app/config.json" # we are mounting the config.json file, which contains configuration options for our application, through a volume. 
+                                          # This is a best practice so that we can make configuration changes without requiring to rebuild/redeploy our application.
+    networks:
+      - default
+
+  redis:
+    image: "bitnami/redis:latest"
+    environment:
+        REDIS_PASSWORD: password123
+    networks:
+      - default
+      
+networks:
+  default:
