@@ -26,6 +26,8 @@ WORKDIR /dist
 
 # copy generated binaries individually to dist
 RUN cp /src/cats .
+RUN cp /src/config.json .
+
 
 # run the binary on 8080
 FROM scratch
@@ -34,6 +36,7 @@ COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certifica
 COPY --from=build /etc/passwd /etc/passwd
 COPY --from=build /etc/group /etc/group
 COPY --from=build /dist/cats ./
+COPY --from=build /dist/config.json ./
 
 EXPOSE 8080
 CMD ["./cats"]

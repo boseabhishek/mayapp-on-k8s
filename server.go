@@ -14,6 +14,61 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var db *DB
+
+//Configuration is a struct for holding the application configuration data read from a JSON file
+type Configuration struct {
+	RedisHost string
+	RedisPort string
+}
+
+func init() {
+	// filename is the path to the json config file
+	// this file can either be found on local or copied inside container or as configmap inside k8s cluster
+	file, err := os.Open("config.json")
+	if err != nil {
+		log.Fatalf("error opening config.json file %v", err)
+	}
+	decoder := json.NewDecoder(file)
+	var configuration Configuration
+	err = decoder.Decode(&configuration)
+	if err != nil {
+		log.Fatalf("error decoding config.json file %v", err)
+	}
+
+	redisHost := os.Getenv("REDIS_HOST")
+	redisPort := os.Getenv("REDIS_PORT")
+
+	if redisHost == "" {
+		if redisHost = configuration.RedisHost; redisHost == "" {
+			redisHost = "localhost"
+		}
+	}
+	if redisPort == "" {
+		if redisPort = configuration.RedisPort; redisPort == "" {
+			redisPort = "6379"
+		}
+	}
+	redisPassword := os.Getenv("REDIS_PASSWORD")
+
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:%s", redisHost, redisPort),
+		Password: redisPassword,
+		DB:       0, // use default DB
+	})
+	db = &DB{}
+	db.redis = rdb
+}
+
+func main() {
+	router := mux.NewRouter()
+	router.HandleFunc("/cats/{id}", getCats(db))
+	router.HandleFunc("/cats", postCats(db))
+
+	fmt.Println("starting cats server...⚡️⚡️⚡️⚡️")
+	log.Fatal(http.ListenAndServe(":8080", router))
+}
+
 type cat struct {
 	Name      string `json:"name"`
 	Age       int    `json:"age"`
@@ -71,32 +126,6 @@ func postCats(db *DB) http.HandlerFunc {
 		fmt.Fprintf(w, "yayy! cat is saved %s", id)
 		return
 	}
-}
-
-var db *DB
-
-func init() {
-	pwd := os.Getenv("REDIS_PASSWORD")
-	if pwd == "" {
-		fmt.Println("no REDIS_PASSWORD found")
-		os.Exit(1)
-	}
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     "redis:6379",
-		Password: pwd,
-		DB:       0, // use default DB
-	})
-	db = &DB{}
-	db.redis = rdb
-}
-
-func main() {
-	router := mux.NewRouter()
-	router.HandleFunc("/cats/{id}", getCats(db))
-	router.HandleFunc("/cats", postCats(db))
-
-	fmt.Println("starting cats server...⚡️⚡️⚡️⚡️")
-	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
 // TODO: different repo file
