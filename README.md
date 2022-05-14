@@ -1,15 +1,15 @@
 # all about cats
 
-## cats app
+## 🎉 cats app
 
 Simple Go HTTP Server implementation for saving and fetching cats [here](server.go).
 Redis DB used for saving information.
 
-## run services
+## 🚀 run services
 
 ---
 
-### on local machine:
+### 🚀 on local machine:
 
 #### start app on local:
 
@@ -63,11 +63,11 @@ docker-compose down
 
 ---
 
-### on K8s: <TODO>
+### 🚀 on K8s: <TODO>
 
 ---
 
-## access app:
+## ✅ access app:
 
 ### save a cat:
 
