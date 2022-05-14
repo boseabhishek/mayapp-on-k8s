@@ -8,7 +8,7 @@ So, we can just deploy a pod, right?
 
 No, since pods are _ephemeral_ by nature, we need to create a higher controller(DeploymentController inside `kube-controller-manager`) that takes care of our pod (restart if it crashes, move it around nodes, etc.). For that reason, we’ll use a Deployment. Plus, by assigning `replicas: 2`, there are more than one pods which helps in high scalability.
 
-Let's create our `deployment` resource [cats-api-deployment.yaml](cats-api-deployment.yaml)
+Let's create our `deployment` cats-api resource [cats-api-deployment.yaml](mainfests/cats-api-deployment.yaml)
 
 ## STEP 2: finding `cats-api` in the cluster
 
@@ -23,7 +23,6 @@ We can create a `type: LoadBalancer`. A LoadBalancer service will create a load 
 
 The Ingress controller, on the other hand, allows you to tie it to more than one service and choose which requests go to which service depending on the condition you specify (in our case, it’ll be the URL path).
 
-
 ![ingress-to-services](ingress-to-services.png "Ingress to Services mapped")
 
 **VS**
@@ -32,7 +31,7 @@ The Ingress controller, on the other hand, allows you to tie it to more than one
 
 ### STEP 2A: creating service for `cats-api`
 
-Let's create our `service` resource [cats-api-service.yaml](cats-api-service.yaml)
+Let's create our `service` resource [cats-api-service.yaml](mainfests/cats-api-service.yaml)
 
 **N.B.** our Service is the ClusterIP type (default) and we don’t need our service to be accessible externally, this is the job of the Ingress controller.
 
@@ -42,12 +41,55 @@ Ingress, unlike other Kubernetes objects, does not have a controller that ships 
 
 ```shell
 
-$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/mandatory.yaml
-$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/provider/cloud-generic.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/mandatory.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/provider/cloud-generic.yaml
 
 ```
 
 ### STEP 2C: creating ingress for `cats-api-svc`
 
-Let's create our `ingress` resource
+Let's create our `ingress` resource [ingress-for-cats-api-service.yaml](mainfests/ingress-for-cats-api-service.yaml)
 
+## STEP 3: providing config for app runtime
+
+The recommended method is to inject any configuration data into the container from a separate outside source. Kubernetes handles this by using ConfigMaps. Using a ConfigMap, you can supply configuration data to the pod in the form of:
+
+    - environment variables
+    - files mounted as volumes
+
+Our application uses the following configuration stored in config.json: [configmap.yaml](mainfests/configmap.yaml)
+
+## STEP 4: create secrets for REDIS password
+
+```shell
+
+kubectl create secret generic redis-password --from-literal=redis-password=password123
+
+```
+Notice that we used the imperative way to create the Secret to avoid creating a YAML file where the Secret value is base64-encoded. Base64 encoding is not secure since it can easily be decoded. A more secure way of storing Secrets is integrating Kubernetes with a key store like AWS KMS or Microsoft Azure Key Vault. A key store ensures that your Secrets are stored in encrypted form (remember encryption is different than encoding).
+
+## STEP 5: start Redis
+
+### STEP 5A: deploying redis
+
+Let's create our `statefulset` redis resource [redis-deployment.yaml](mainfests/redis-deployment.yaml)
+
+### STEP 5B: expose redis service for other apps to connect to
+
+Let's create our `service` for running redis [redis-service.yaml](mainfests/redis-service.yaml)
+
+## STEP 6: apply all files
+
+```shell
+kubectl apply -f kubernetes/mainfests
+```
+
+# debugging on k8s
+
+```shell
+#Show details of specific pod
+kubectl  describe pod <pod name> -n <namespace-name>
+
+# View logs for specific pod
+kubectl  logs <pod name> -n <namespace-name>
+```
