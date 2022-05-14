@@ -9,7 +9,7 @@ Redis DB used for saving information.
 
 ---
 
-### 🚀 on local machine:
+### 🚀 On local machine:
 
 #### start app on local:
 
@@ -63,7 +63,16 @@ docker-compose down
 
 ---
 
-### 🚀 on K8s: <TODO>
+### 🚀 On K8s cluster: <TODO>
+
+#### push `cats-api` image to Dockerhub
+
+```shell
+# tag the image to use username/image format
+docker image tag cats-on-docker boseabhishek/cats-api
+
+docker push boseabhishek/cats-api
+```
 
 ---
 

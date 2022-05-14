@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+      app: cats-api
+  name: cats-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cats-api
+  template:
+    metadata:
+      labels:
+        app: cats-api
+    spec:
+      containers:
+        # needed to be pushed everytime the image is changed
+      - image: boseabhishek/cats-api
+        imagePullPolicy: IfNotPresent
+        name: cats-api
