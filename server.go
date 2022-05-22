@@ -65,7 +65,7 @@ func main() {
 	router.HandleFunc("/cats/{id}", getCats(db))
 	router.HandleFunc("/cats", postCats(db))
 
-	fmt.Println("starting cats server...⚡️⚡️⚡️⚡️")
+	fmt.Println("starting cats server...✅✅✅✅✅")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
@@ -84,6 +84,7 @@ type DB struct {
 
 // TODO: different handler file
 func getCats(db *DB) http.HandlerFunc {
+	fmt.Println("entering getCats handler... ✨✨✨✨✨✨✨")
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		params := mux.Vars(r)
@@ -107,6 +108,7 @@ func getCats(db *DB) http.HandlerFunc {
 }
 
 func postCats(db *DB) http.HandlerFunc {
+	fmt.Println("entering postCats handler... ✨✨✨✨✨✨✨")
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
@@ -162,6 +164,5 @@ func fetch(ctx context.Context, id string, db *DB) (cat, error) {
 	if err != nil {
 		return cat{}, fmt.Errorf("error unmarshalling redis data for id: %s", id)
 	}
-
 	return c, nil
 }

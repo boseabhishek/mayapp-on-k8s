@@ -87,9 +87,22 @@ kubectl apply -f kubernetes/mainfests
 # debugging on k8s
 
 ```shell
-#Show details of specific pod
+# Show details of specific pod
 kubectl  describe pod <pod name> -n <namespace-name>
 
 # View logs for specific pod
-kubectl  logs <pod name> -n <namespace-name>
+kubectl logs <pod name> -n <namespace-name>
+
+# by app name (for all replication pods)
+kubectl logs -l app=cats-api --follow -n default
+
+```
+
+# changing code (if needed)
+```shell
+
+docker build -t cats-on-docker .
+docker image tag cats-on-docker boseabhishek/cats-api
+docker push boseabhishek/cats-api
+
 ```
