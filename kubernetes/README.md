@@ -81,7 +81,13 @@ Let's create our `service` for running redis [redis-service.yaml](mainfests/redi
 ## STEP 6: apply all files
 
 ```shell
-kubectl apply -f kubernetes/mainfests
+kubectl apply -f kubernetes/manifests
+```
+
+## STEP 7: delete all files (once created, it stays and even survives cluster restarts (etcd??))
+
+```shell
+kubectl delete -f kubernetes/manifests
 ```
 
 # debugging on k8s
